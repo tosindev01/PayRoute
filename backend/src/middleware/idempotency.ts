@@ -3,6 +3,17 @@ import { pool } from '../config/database';
 import crypto from 'crypto';
 
 /**
+ * POST-Request Idempotency Control
+ * 
+ * Prevents duplicate transactions caused by network retries or client errors.
+ * 
+ * Flow:
+ * 1. Check if Idempotency-Key exists in DB.
+ * 2. If yes: Compare request payload hash. If same, replay previous response.
+ * 3. If no: Intercept res.json, execute logic, and store response for future replays.
+ */
+
+/**
  * Idempotency middleware for POST endpoints.
  * Stores the first response for a given key and replays it for duplicates.
  * Uses advisory locks to handle concurrent requests with the same key.

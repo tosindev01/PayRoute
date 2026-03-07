@@ -5,6 +5,17 @@ import { debitAccount, creditAccount } from './ledgerService';
 import { submitToProvider } from './providerService';
 import { simulateWebhookCallback } from './simulationService';
 
+/**
+ * Transaction Lifecycle Service
+ * 
+ * Handles the orchestration of international payments, including:
+ * 1. Account validation and row locking (pessimistic)
+ * 2. FX Quote validation and atomic consumption
+ * 3. Double-entry ledger recording
+ * 4. Provider submission and failure compensation (reversals)
+ * 5. Webhook-driven state transitions
+ */
+
 export interface InitiatePaymentParams {
     idempotencyKey: string;
     senderAccountId: string;

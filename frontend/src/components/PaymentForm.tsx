@@ -3,6 +3,16 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { getAccounts, getFxQuote, initiatePayment } from '../api/client';
 
+/**
+ * Payment Initiation Component
+ * 
+ * Features:
+ * 1. Multi-currency account selection
+ * 2. Live FX Quote acquisition with TTL countdown
+ * 3. Idempotency key generation per submission
+ * 4. Optimistic UI with Success Modal upon broadcast
+ */
+
 export function PaymentForm() {
     const navigate = useNavigate();
     const [form, setForm] = useState({

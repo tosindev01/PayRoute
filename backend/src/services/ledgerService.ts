@@ -2,8 +2,13 @@ import { PoolClient } from 'pg';
 import { LedgerEntry } from '../types';
 
 /**
- * All ledger operations MUST run inside a database transaction (PoolClient).
- * This enforces double-entry: every debit has a matching credit somewhere.
+ * Double-Entry Ledger Service
+ * 
+ * Core financial invariants:
+ * 1. All operations MUST run inside a PoolClient database transaction.
+ * 2. Balance updates are protected by 'SELECT FOR UPDATE' row-level locks.
+ * 3. Every state change is recorded with balance_before and balance_after for auditability.
+ * 4. Constraint layer (database-level row checks) reinforces that balances cannot be negative.
  */
 
 export async function debitAccount(
