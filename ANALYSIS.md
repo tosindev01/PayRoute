@@ -99,3 +99,24 @@ I would add **event sourcing** for transaction state. Instead of mutating the `t
 3. **Structured Audit Trail**: Centralized logging of all ledger changes for regulatory compliance.
 4. **Reconciliation Service**: Daily automated job to match internal ledgers against provider statements.
 5. **Secrets Management**: Dynamic rotation of `WEBHOOK_SECRET` via AWS Secrets Manager.
+
+---
+
+## Phase 2: Perfecting the Lifecycle (Implementation Detail)
+
+### 1. Real-time FX Architecture
+Instead of static rates, the system now features a **Live FX Ticker**. This is implemented via:
+- **Backend Simulation**: A heartbeat endpoint `/fx/rates` that injects controlled volatility into major currency pairs (NGN to USD, GBP, EUR, AED).
+- **Frontend Polling**: React Query with a 5-second `refetchInterval` to keep data fresh without overloading the pipe.
+- **Visual Feedback**: Real-time trend indicators (▲/▼) driven by comparing local state to incoming payloads.
+
+### 2. Webhook Lifecycle Simulation
+To demonstrate "production behavior" in development:
+- **Simulation Service**: An asynchronous handler triggered upon payment submission. It randomizes delays (10–40s) and outcomes (Success vs. Fail).
+- **Signature Verification**: Every simulated webhook is signed with an HMAC-SHA256 signature using the `WEBHOOK_SECRET`, exactly as Stripe or Flutterwave would do.
+- **Failure Handling**: Randomized failures include specific reasons (e.g., "Insufficient Float"), which triggers the **Compensating Ledger Entry** logic to reverse funds automatically.
+
+### 3. User Experience & Auditability
+- **Success Interaction**: Replaced abrupt redirects with an **Emerald Success Modal**, providing immediate reference confirmation.
+- **Audit Log**: The **Status Audit Log** now updates in real-time as webhooks arrive, showing the full chain of custody from `initiated` → `processing` → `completed/failed`.
+- **Financial Printing**: Implemented CSS Print Media queries and a dedicated receipt view, allowing users to generate professional PDF/paper proofs of any transaction.
